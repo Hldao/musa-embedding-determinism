@@ -154,8 +154,13 @@ in [`results/patched-build-receipt.json`](results/patched-build-receipt.json).
 The preferred destination is a pull request to
 [`MooreThreads/torch_musa`](https://github.com/MooreThreads/torch_musa). A useful
 upstream review should include the reproducer, regression test, minimal kernel
-guard, exact runtime versions, and performance measurements. The current
-upstream status will be linked here after submission.
+guard, exact runtime versions, and performance measurements.
+
+Current upstream submission:
+[`MooreThreads/torch_musa#152`](https://github.com/MooreThreads/torch_musa/pull/152)
+(Draft). The pull request adapts the routing guard and regression test to the
+current public `main`; current-main MUSA device validation is intentionally
+left to upstream CI and maintainer review.
 
 ## Contributing and license
 
