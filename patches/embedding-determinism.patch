@@ -1,0 +1,23 @@
+diff --git a/torch_musa/csrc/aten/ops/musa/Embedding.mu b/torch_musa/csrc/aten/ops/musa/Embedding.mu
+index 0000000..1111111 100644
+--- a/torch_musa/csrc/aten/ops/musa/Embedding.mu
++++ b/torch_musa/csrc/aten/ops/musa/Embedding.mu
+@@ -1,4 +1,5 @@
+ #include <ATen/ATen.h>
++#include <ATen/Context.h>
+ #include <ATen/Dispatch.h>
+ #include <ATen/ceil_div.h>
+ #include <ATen/core/Tensor.h>
+@@ -55,7 +56,11 @@ Tensor EmbeddingDenseBwdMUSA(
+ 
+   // be careful for setting this value, there may be
+   // precision and efficiency drops when value gets larger.
+-  if (num_indices <= 3072 && !scale_grad_by_freq) {
++  const bool use_atomic_fast_path =
++      num_indices <= 3072 && !scale_grad_by_freq &&
++      !globalContext().deterministicAlgorithms();
++
++  if (use_atomic_fast_path) {
+     Tensor grad_weight = at::zeros(
+         {num_weights, grad_output.size(-1)},
+         grad_output.options().memory_format(at::MemoryFormat::Contiguous));

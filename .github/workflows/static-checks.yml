@@ -1,0 +1,35 @@
+name: Static checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile Python sources
+        run: |
+          python3 -m compileall -q \
+            reproduce_embedding_backward.py \
+            benchmark_embedding_backward.py \
+            proposed_test_embedding_determinism.py
+
+      - name: Validate JSON results
+        run: |
+          for report in results/*.json; do
+            python3 -m json.tool "$report" >/dev/null
+          done
+
+      - name: Check patch against torch_musa v1.3.0
+        run: |
+          git clone --depth 1 --branch v1.3.0 \
+            https://github.com/MooreThreads/torch_musa.git upstream
+          git -C upstream apply --check \
+            "$GITHUB_WORKSPACE/patches/embedding-determinism.patch"
+
