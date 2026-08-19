@@ -12,6 +12,8 @@ device.
 - `patched-benchmark-s4000.json`: 25 warmup calls and 200 synchronized samples
   per mode.
 - `patched-build-receipt.json`: source, schema, patch, and built artifact hashes.
+- `empty-indices-review-s4000.json`: red/green validation of the empty-index
+  edge case raised during upstream review, including the v1.3 sorting-path
+  compatibility note.
 
 The experimental wheel is not distributed in this repository.
-

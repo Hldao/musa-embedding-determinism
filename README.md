@@ -29,6 +29,14 @@ const bool use_atomic_fast_path =
 The patch affects embedding backward only. It does not change forward
 inference or the mathematical definition of the gradient.
 
+The sorted path also returns a zero gradient immediately when
+`num_indices == 0`. This preserves the empty-input behavior of the atomic
+path when deterministic algorithms route a small input to the sorted path.
+The v1.3 compatibility patch performs this check before its muDNN `Sort`
+call (which rejects empty input) and keeps the kernel-level guard requested
+in upstream review. Current upstream uses a different sorting helper, so the
+pull request itself only needs the reviewed kernel-level guard.
+
 ## Tested environment and result
 
 The issue and fix were tested on:
@@ -52,9 +60,12 @@ torch_musa repository.
 | Existing segmented-path workaround | 8 | 1 | deterministic |
 
 The patched deterministic path and the workaround produced the same output
-hash. The proposed regression test failed with the installed unpatched wheel
-and passed with the isolated patched build (`1 passed`). See [`results/`](results/)
-for the machine-readable reports.
+hash. The original non-empty regression test failed with the installed
+unpatched wheel and passed with the isolated patched build (`1 passed`). The
+standalone test now also covers the empty-index edge case identified during
+upstream review. On the S4000, the old v1.3 compatibility build failed that
+case at `SortRun`; the updated build passed both regression tests (`2 passed`).
+See [`results/`](results/) for the machine-readable reports.
 
 ## Reproduce the issue
 

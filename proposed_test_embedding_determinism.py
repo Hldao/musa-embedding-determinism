@@ -38,3 +38,22 @@ def test_embedding_dense_backward_obeys_deterministic_algorithms():
         torch.use_deterministic_algorithms(was_enabled, warn_only=was_warn_only)
 
     assert all(torch.equal(outputs[0], output) for output in outputs[1:])
+
+
+@testing.test_on_nonzero_card_if_multiple_musa_device(1)
+def test_embedding_dense_backward_deterministic_empty_indices():
+    indices = torch.empty((0,), dtype=torch.int64, device="musa")
+    grad = torch.empty((0, 128), dtype=torch.float32, device="musa")
+
+    was_enabled = torch.are_deterministic_algorithms_enabled()
+    was_warn_only = torch.is_deterministic_algorithms_warn_only_enabled()
+    try:
+        torch.use_deterministic_algorithms(True)
+        output = torch.ops.aten.embedding_dense_backward(
+            grad, indices, 512, -1, False
+        )
+    finally:
+        torch.use_deterministic_algorithms(was_enabled, warn_only=was_warn_only)
+
+    assert output.shape == (512, 128)
+    assert torch.count_nonzero(output).item() == 0

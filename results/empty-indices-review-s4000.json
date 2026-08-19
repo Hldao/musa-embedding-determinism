@@ -1,0 +1,47 @@
+{
+  "schema": "musa-embedding-determinism/empty-indices-review/v1",
+  "date": "2026-08-20",
+  "review": {
+    "pull_request": "https://github.com/MooreThreads/torch_musa/pull/152",
+    "comment": "https://github.com/MooreThreads/torch_musa/pull/152#discussion_r3811869317"
+  },
+  "runtime": {
+    "device": "MTT S4000",
+    "driver": "2.7.0",
+    "torch": "2.2.0",
+    "torch_musa_base_tag": "v1.3.0",
+    "torch_musa_base_commit": "73c9f5ba21dc6a0dc0ed07ef027c804dc53644a9"
+  },
+  "case": {
+    "operator": "aten.embedding_dense_backward",
+    "deterministic_algorithms": true,
+    "indices_shape": [0],
+    "gradient_shape": [0, 128],
+    "num_weights": 512,
+    "expected_output_shape": [512, 128],
+    "expected_output": "all zeros"
+  },
+  "before": {
+    "result": "failed",
+    "pytest": "1 failed, 1 deselected",
+    "error": "EmbeddingDenseBwdMUSA MUDNN failed in: SortRun; input is empty",
+    "libmusa_kernels_sha256": "992a405cf3f6329f928526027079d1cca6ae4ed7b46a23c2fd49c1174df75336"
+  },
+  "after": {
+    "result": "passed",
+    "pytest": "2 passed",
+    "tests": [
+      "test_embedding_dense_backward_obeys_deterministic_algorithms",
+      "test_embedding_dense_backward_deterministic_empty_indices"
+    ],
+    "libmusa_kernels_sha256": "f4609844043769706d0e200ebdb3e4ba6ee66a08cae3eb0c38faf29db21f1f3b"
+  },
+  "source_version_note": {
+    "v1.3": "muDNN Sort rejects empty input, so the compatibility patch returns before Sort and also retains the kernel guard",
+    "current_upstream": "the maintainer-requested kernel guard is applied after grad_weight allocation; upstream uses a different sorting helper"
+  },
+  "inputs": {
+    "patch_sha256": "d717ae0fb8896c6613dcff9fc17a502c0fafef0872e46514c22dc89bf0a0615f",
+    "test_sha256": "63275dde5428eb3d0c8e2f549aaf380dce36344e154a6e0adec22bf49c5b4901"
+  }
+}

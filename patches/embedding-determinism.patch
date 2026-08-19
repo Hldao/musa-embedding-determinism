@@ -21,3 +21,27 @@ index 0000000..1111111 100644
      Tensor grad_weight = at::zeros(
          {num_weights, grad_output.size(-1)},
          grad_output.options().memory_format(at::MemoryFormat::Contiguous));
+@@ -129,3 +134,7 @@ Tensor EmbeddingDenseBwdMUSA(
+   }
+-
++  if (C10_UNLIKELY(num_indices == 0)) {
++    return at::zeros(
++        {num_weights, grad_output.size(-1)}, grad_output.options());
++  }
++
+   auto sorted_indices =
+diff --git a/torch_musa/csrc/aten/ops/musa/EmbeddingBackwardKernel.mu b/torch_musa/csrc/aten/ops/musa/EmbeddingBackwardKernel.mu
+index 2222222..3333333 100644
+--- a/torch_musa/csrc/aten/ops/musa/EmbeddingBackwardKernel.mu
++++ b/torch_musa/csrc/aten/ops/musa/EmbeddingBackwardKernel.mu
+@@ -307,5 +307,9 @@ Tensor EmbeddingBackwardMUSAKernel(
+   auto stream = at::musa::getCurrentMUSAStream();
+   const ptrdiff_t numel = sorted_indices.numel();
+   Tensor grad_weight = at::zeros({num_weights, grad.size(-1)}, grad.options());
+-
++
++  if (C10_UNLIKELY(numel == 0)) {
++    return grad_weight;
++  }
++
+   int tbl_h = grad_weight.size(0);

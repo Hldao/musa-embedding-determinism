@@ -33,6 +33,12 @@ const bool use_atomic_fast_path =
 - 不改 embedding forward，不影响普通前向推理；
 - 不改变梯度的数学定义。
 
+补丁同时在 sorted 路径中处理 `num_indices == 0`：直接返回全零梯度。这样开启
+deterministic 后，空输入从 atomic 路由切到 sorted 路由时仍保持原有语义。
+由于 v1.3 的 muDNN `Sort` 不接受空输入，兼容补丁会在调用它之前短路，同时保留
+上游评审要求的 kernel 层保护；当前上游使用了不同的排序辅助逻辑，因此 PR 本身
+只需要评审指定的 kernel 层保护。
+
 ## 实测环境与结果
 
 - 设备：MTT S4000；
@@ -52,8 +58,10 @@ const bool use_atomic_fast_path =
 | 补丁后 + 请求 deterministic | 8 | 1 | 确定 |
 | 已有 segmented 路径规避 | 8 | 1 | 确定 |
 
-补丁确定性路径与 segmented 规避路径的输出哈希完全相同。回归测试在原 wheel 上失败，在隔离补丁
-构建上变为 `1 passed`。原始机器可读结果见 [`results/`](results/)。
+补丁确定性路径与 segmented 规避路径的输出哈希完全相同。原始非空输入回归测试在原 wheel 上失败，
+在隔离补丁构建上变为 `1 passed`；独立测试现已补充上游审查中指出的空 indices 边界。非空输入的
+旧 v1.3 兼容构建会在该边界上报 `SortRun` 失败，更新后的构建两项回归测试均通过（`2 passed`）。
+机器可读结果见 [`results/`](results/)。
 
 ## 复现
 
