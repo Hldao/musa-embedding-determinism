@@ -131,7 +131,7 @@ python3 benchmark_embedding_backward.py --warmup 25 --rounds 200
 复现器、回归测试、最小内核修改、准确环境信息和性能结果。
 
 当前上游提交：
-[`MooreThreads/torch_musa#152`](https://github.com/MooreThreads/torch_musa/pull/152)（Draft）。
+[`MooreThreads/torch_musa#152`](https://github.com/MooreThreads/torch_musa/pull/152)（已进入维护者审阅）。
 该 PR 已把路由 guard 与回归测试适配到公开 `main`；current-main 的 MUSA 设备验证明确留给上游 CI
 和维护者审阅，不把 v1.3 环境的实测结果冒充为当前主线设备验证。
 

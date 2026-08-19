@@ -158,9 +158,9 @@ guard, exact runtime versions, and performance measurements.
 
 Current upstream submission:
 [`MooreThreads/torch_musa#152`](https://github.com/MooreThreads/torch_musa/pull/152)
-(Draft). The pull request adapts the routing guard and regression test to the
-current public `main`; current-main MUSA device validation is intentionally
-left to upstream CI and maintainer review.
+(ready for maintainer review). The pull request adapts the routing guard and
+regression test to the current public `main`; current-main MUSA device
+validation is intentionally left to upstream CI and maintainer review.
 
 ## Contributing and license
 
